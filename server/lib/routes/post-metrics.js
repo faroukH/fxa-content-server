@@ -18,7 +18,8 @@ module.exports = function () {
 
       var metrics = req.body;
       metrics.agent = req.get('user-agent');
-      metricsCollector.write(req.body);
+
+      metricsCollector.write(metrics);
     }
   };
 };
