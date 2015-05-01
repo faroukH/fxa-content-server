@@ -11,11 +11,14 @@
 
 define([
   'underscore',
+  'lib/constants',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel',
   'lib/promise',
   'lib/channels/web'
-], function (_, OAuthAuthenticationBroker, ChannelMixin, p, WebChannel) {
+],
+function (_, Constants, OAuthAuthenticationBroker, ChannelMixin, p,
+      WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     defaults: _.extend({}, OAuthAuthenticationBroker.prototype.defaults, {
@@ -91,9 +94,13 @@ define([
         });
     },
 
-    afterSignIn: function (account) {
+    afterSignIn: function (account, additionalResultData) {
+      if (! additionalResultData) {
+        additionalResultData = {};
+      }
+      additionalResultData.closeWindow = true;
       return OAuthAuthenticationBroker.prototype.afterSignIn.call(
-                this, account, { closeWindow: true });
+                this, account, additionalResultData);
     },
 
     afterCompleteSignUp: function (account) {
@@ -103,13 +110,17 @@ define([
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(_.bind(self.finishOAuthFlow, self, account));
+      return p().delay(100).then(_.bind(self.finishOAuthFlow, self, account, {
+        action: Constants.OAUTH_ACTION_SIGNUP
+      }));
     },
 
     afterCompleteResetPassword: function (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
-      return this.finishOAuthFlow(account);
+      return this.finishOAuthFlow(account, {
+        action: Constants.OAUTH_ACTION_SIGNIN
+      });
     },
 
     // used by the ChannelMixin to get a channel.

@@ -8,8 +8,9 @@
 
 define([
   'lib/promise',
+  'lib/constants',
   'models/auth_brokers/oauth'
-], function (p, OAuthAuthenticationBroker) {
+], function (p, Constants, OAuthAuthenticationBroker) {
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     sendOAuthResultToRelier: function (result) {
@@ -17,12 +18,20 @@ define([
       return p()
         .then(function () {
           var redirectTo = result.redirect;
+          var separator;
 
           if (result.error) {
             // really, we should be parsing the URL and adding the error
             // parameter. That requires more code than this.
-            var separator = redirectTo.indexOf('?') === -1 ? '?' : '&';
+            separator = redirectTo.indexOf('?') === -1 ? '?' : '&';
             redirectTo += (separator + 'error=' + encodeURIComponent(result.error));
+          }
+
+          if (result.action) {
+            // really, we should be parsing the URL and adding the action
+            // parameter. That requires more code than this.
+            separator = redirectTo.indexOf('?') === -1 ? '?' : '&';
+            redirectTo += (separator + 'action=' + encodeURIComponent(result.action));
           }
 
           win.location.href = redirectTo;
@@ -57,14 +66,15 @@ define([
       });
     },
 
-    finishOAuthFlow: function (account) {
+    finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
       return p().then(function () {
         // There are no ill side effects if if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
         self.clearOriginalTabMarker();
-        return OAuthAuthenticationBroker.prototype.finishOAuthFlow.call(self, account);
+        return OAuthAuthenticationBroker.prototype
+          .finishOAuthFlow.call(self, account, additionalResultData);
       });
     },
 
@@ -77,10 +87,11 @@ define([
       var self = this;
       return p().delay(100).then(function () {
         if (self.isOriginalTab()) {
-          return self.finishOAuthFlow(account)
-            .then(function () {
-              return { halt: true };
-            });
+          return self.finishOAuthFlow(account, {
+            action: Constants.OAUTH_ACTION_SIGNUP
+          }).then(function () {
+            return { halt: true };
+          });
         }
       });
     },
@@ -91,10 +102,11 @@ define([
       var self = this;
       return p().then(function () {
         if (self.isOriginalTab()) {
-          return self.finishOAuthFlow(account)
-            .then(function () {
-              return { halt: true };
-            });
+          return self.finishOAuthFlow(account, {
+            action: Constants.OAUTH_ACTION_SIGNIN
+          }).then(function () {
+            return { halt: true };
+          });
         }
       });
     }

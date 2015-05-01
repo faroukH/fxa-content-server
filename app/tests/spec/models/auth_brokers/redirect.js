@@ -9,13 +9,14 @@ define([
   'chai',
   'sinon',
   'lib/promise',
+  'lib/constants',
   'lib/session',
   'models/auth_brokers/redirect',
   'models/reliers/base',
   'models/user',
   '../../../mocks/window'
 ],
-function (chai, sinon, p, Session, RedirectAuthenticationBroker,
+function (chai, sinon, p, Constants, Session, RedirectAuthenticationBroker,
     Relier, User, WindowMock) {
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';
@@ -67,6 +68,20 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
           .then(function () {
             assert.include(windowMock.location.href, REDIRECT_TO);
             assert.include(windowMock.location.href, 'error=error');
+          });
+        });
+      });
+
+      describe('with an action', function () {
+        it('appends an action query parameter', function () {
+          var action = Constants.OAUTH_ACTION_SIGNIN
+          return broker.sendOAuthResultToRelier({
+            redirect: REDIRECT_TO,
+            action: action
+          })
+          .then(function () {
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'action=' + action);
           });
         });
       });

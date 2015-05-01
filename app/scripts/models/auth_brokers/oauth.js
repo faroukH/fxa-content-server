@@ -11,13 +11,16 @@
 
 define([
   'underscore',
+  'lib/constants',
   'lib/url',
   'lib/oauth-errors',
   'lib/auth-errors',
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base'
-], function (_, Url, OAuthErrors, AuthErrors, p, Validate, BaseAuthenticationBroker) {
+],
+function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
+      BaseAuthenticationBroker) {
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -119,6 +122,11 @@ define([
     },
 
     afterSignIn: function (account, additionalResultData) {
+      // Signal to the RP that this was an existing account sign-in.
+      if (! additionalResultData) {
+        additionalResultData = {};
+      }
+      additionalResultData.action = Constants.OAUTH_ACTION_SIGNIN;
       return this.finishOAuthFlow(account, additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
@@ -127,13 +135,15 @@ define([
     },
 
     afterSignUpConfirmationPoll: function (account) {
+      var additionalResultData = { action: Constants.OAUTH_ACTION_SIGNUP };
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(account);
+      return this.finishOAuthFlow(account, additionalResultData);
     },
 
     afterResetPasswordConfirmationPoll: function (account) {
+      var additionalResultData = { action: Constants.OAUTH_ACTION_SIGNIN };
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(account);
+      return this.finishOAuthFlow(account, additionalResultData);
     },
 
     transformLink: function (link) {
