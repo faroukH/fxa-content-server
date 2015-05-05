@@ -260,6 +260,31 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
         assert.equal(transformed, '/oauth/signin');
       });
     });
+
+    describe('shouldPromptForPermissions', function () {
+      it('should not prompt when relier is trusted', function () {
+        sinon.stub(relier, 'isTrusted', function () {
+          return true;
+        });
+        assert.isFalse(broker.shouldPromptForPermissions(user.initAccount()));
+        assert.isTrue(relier.isTrusted.called);
+      });
+
+      it('should prompt when relier is untrusted and needs scopes', function () {
+        var account = user.initAccount();
+        sinon.stub(relier, 'isTrusted', function () {
+          return false;
+        });
+        sinon.stub(account, 'hasGrantedPermissions', function () {
+          return false;
+        });
+        relier.set('scope', 'profile:email');
+        assert.isTrue(broker.shouldPromptForPermissions(account));
+        assert.isTrue(relier.isTrusted.called);
+        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), 'profile:email'));
+      });
+    });
+
   });
 });
 

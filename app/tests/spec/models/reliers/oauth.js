@@ -226,6 +226,46 @@ define([
             assert.equal(err.param, 'scope');
           });
       });
+
+      it('isTrusted when `trusted` is true', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: true
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.isTrusted());
+          });
+      });
+
+      it('!isTrusted when `trusted` is false', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p({
+            name: SERVICE_NAME,
+            redirect_uri: SERVER_REDIRECT_URI,
+            trusted: false
+          });
+        });
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.isTrusted());
+          });
+      });
     });
 
     describe('isOAuth', function () {

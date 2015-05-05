@@ -140,10 +140,14 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signin.auth.121 - account locked
 * signin.unlock-email.send - user attempted to send unlock email
 * signin.unlock-email.send.success - unlock email successfully sent
-
+#### signin_permissions
+* proceed - user proceeds and grants the requested permissions
 #### signup
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
+#### signup_permissions
+* proceed - user proceeds and grants the requested permissions
+
 #### tos
 #### unexpected_error

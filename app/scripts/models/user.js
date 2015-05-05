@@ -222,6 +222,22 @@ define([
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||
         Session.cachedCredentials.email !== Session.email));
+    },
+
+    signInAccount: function (account, relier) {
+      var self = this;
+      return account.signIn(relier)
+        .then(function () {
+          return self.setSignedInAccount(account);
+        });
+    },
+
+    signUpAccount: function (account, relier) {
+      var self = this;
+      return account.signUp(relier)
+        .then(function () {
+          return self.setSignedInAccount(account);
+        });
     }
 
   });

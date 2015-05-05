@@ -159,7 +159,13 @@ define([
           //jshint camelcase: false
           // server version always takes precedent over the search parameter
           self.set('redirectUri', serviceInfo.redirect_uri);
+          self.set('termsUri', serviceInfo.terms_uri);
+          self.set('privacyUri', serviceInfo.privacy_uri);
+          self.set('trusted', serviceInfo.trusted);
           self.set('origin', Url.getOrigin(serviceInfo.redirect_uri));
+
+          self.set('serviceUri', self.get('origin').replace(/https?:\/\//, ''));
+
         }, function (err) {
           // the server returns an invalid request signature for an
           // invalid/unknown client_id
@@ -171,6 +177,10 @@ define([
           }
           throw err;
         });
+    },
+
+    isTrusted: function () {
+      return this.get('trusted');
     }
   });
 

@@ -279,5 +279,40 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         });
     });
 
+
+    it('signInAccount', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      sinon.stub(account, 'signIn', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+
+      return user.signInAccount(account, relierMock)
+        .then(function () {
+          assert.isTrue(account.signIn.calledWith(relierMock));
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+    });
+
+    it('signUpAccount', function () {
+      var relierMock = {};
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      sinon.stub(account, 'signUp', function () {
+        return p();
+      });
+      sinon.stub(user, 'setSignedInAccount', function () {
+        return p();
+      });
+
+      return user.signUpAccount(account, relierMock)
+        .then(function () {
+          assert.isTrue(account.signUp.calledWith(relierMock));
+          assert.isTrue(user.setSignedInAccount.calledWith(account));
+        });
+    });
+
   });
 });
