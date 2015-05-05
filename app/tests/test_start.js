@@ -101,6 +101,7 @@ function (Translator, Session) {
     '../tests/spec/models/reliers/fx-desktop',
     '../tests/spec/models/auth_brokers/base',
     '../tests/spec/models/auth_brokers/fx-desktop',
+    '../tests/spec/models/auth_brokers/fx-desktop-v2',
     '../tests/spec/models/auth_brokers/web-channel',
     '../tests/spec/models/auth_brokers/redirect',
     '../tests/spec/models/auth_brokers/oauth',
