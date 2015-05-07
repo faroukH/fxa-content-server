@@ -41,7 +41,34 @@ define([
         // ignore the parse error.
       }
 
-      this.set(values);
+      // Update new values, without overwriting items on the prototype.
+      _.each(values, function (value, key) {
+        if (! Session.prototype.hasOwnProperty(key)) {
+          this[key] = value;
+        }
+      }, this);
+
+      return values;
+    },
+
+
+    /**
+     * Reload in-memory values based on what's currently in storage.
+     * @method reload
+     * This method can be used to pull in any changes to localStorage
+     * made by other tabs.
+     */
+    reload: function () {
+      var values = this.load();
+      // Clear values that no longer exist in storage.
+      _.each(this, function (value, key) {
+        if (! Session.prototype.hasOwnProperty(key)) {
+          if (! values.hasOwnProperty(key)) {
+            this[key] = null;
+            delete this[key];
+          }
+        }
+      }, this);
     },
 
     /**
